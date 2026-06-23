@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Five Hundred Strategy Table</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>Five Hundred Strategy Table</h1>
+    <p class="subtitle">Partnership 500 table tracker and play advisor</p>
+  </header>
+
+  <nav class="mode-tabs" aria-label="Game modes">
+    <button id="trackerModeBtn" class="active" type="button">Table Mode</button>
+    <button id="advisorModeBtn" type="button">Play Advisor</button>
+  </nav>
+
+  <div id="errors" role="alert"></div>
+
+  <section id="trackerMode" class="mode-panel active">
+    <section class="controls">
+      <button id="dealBtn" type="button">Deal Random Hands</button>
+      <button id="loadBtn" type="button">Load Hands</button>
+      <button id="startTrackerBtn" type="button">Start Bidding</button>
+      <button id="clearBtn" type="button">Clear</button>
+    </section>
+
+    <section class="game-options">
+      <label for="dealerSelect">Dealer:</label>
+      <select id="dealerSelect">
+        <option value="0">Player 1</option>
+        <option value="1">Player 2</option>
+        <option value="2">Player 3</option>
+        <option value="3">Player 4</option>
+      </select>
+      <span id="trackerPhaseBadge" class="phase-badge">Setup</span>
+    </section>
+
+    <section class="tracker-flow">
+      <section class="panel">
+        <h2>Bidding</h2>
+        <p id="trackerBidStatus" class="status-line">Load hands, choose the dealer, then start bidding.</p>
+        <div class="inline-form">
+          <button id="trackerPassBidBtn" type="button" disabled>Pass</button>
+          <label for="trackerBidTricksSelect">Bid</label>
+          <select id="trackerBidTricksSelect" disabled>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+          <select id="trackerBidSuitSelect" disabled>
+            <option value="S">Spades</option>
+            <option value="C">Clubs</option>
+            <option value="D">Diamonds</option>
+            <option value="H">Hearts</option>
+          </select>
+          <button id="trackerMakeBidBtn" type="button" disabled>Record Bid</button>
+        </div>
+        <ol id="trackerBidLog" class="log-list"></ol>
+      </section>
+
+      <section class="panel">
+        <h2>Game Flow</h2>
+        <p id="trackerGameStatus" class="status-line">Cards are clickable after bidding starts.</p>
+        <div class="field-row">
+          <label for="trackerFocusPlayerSelect">Advisor focus</label>
+          <select id="trackerFocusPlayerSelect">
+            <option value="current">Current player</option>
+            <option value="0">Player 1</option>
+            <option value="1">Player 2</option>
+            <option value="2">Player 3</option>
+            <option value="3">Player 4</option>
+          </select>
+        </div>
+        <div class="controls compact-controls">
+          <button id="pickupKittyBtn" type="button" disabled>Pick Up Kitty</button>
+          <button id="confirmDiscardBtn" type="button" disabled>Discard Selected 3</button>
+          <button id="undoTrackerBtn" type="button" disabled>Undo</button>
+        </div>
+        <p id="discardStatus" class="recommendation"></p>
+        <div class="score-row">
+          <span>Team A tricks: <strong id="trackerTeamAScore">0</strong></span>
+          <span>Team B tricks: <strong id="trackerTeamBScore">0</strong></span>
+        </div>
+      </section>
+    </section>
+
+    <main class="table" aria-label="Five Hundred table">
+      <section class="player-card player-top team-a" data-player="0">
+        <h2>Player 1</h2>
+        <p><span>Team A with Player 3</span><strong id="p0Count">0</strong></p>
+        <textarea id="p0Input" placeholder="Example: AS KS QS JS 10S 9H 8D 7C 6C JK"></textarea>
+        <div id="p0Hand" class="hand"></div>
+      </section>
+
+      <section class="player-card player-right team-b" data-player="1">
+        <h2>Player 2</h2>
+        <p><span>Team B with Player 4</span><strong id="p1Count">0</strong></p>
+        <textarea id="p1Input" placeholder="10 cards"></textarea>
+        <div id="p1Hand" class="hand"></div>
+      </section>
+
+      <section class="table-center">
+        <div class="team-marker team-a-marker">Team A: Player 1 + Player 3</div>
+        <div class="table-felt">
+          <span id="tableContract">No contract</span>
+          <strong id="tableTurn">Setup</strong>
+          <div id="centerTrick" class="center-trick"></div>
+          <small id="centerTrickResult"></small>
+        </div>
+        <div class="team-marker team-b-marker">Team B: Player 2 + Player 4</div>
+      </section>
+
+      <section class="player-card player-left team-b" data-player="3">
+        <h2>Player 4</h2>
+        <p><span>Team B with Player 2</span><strong id="p3Count">0</strong></p>
+        <textarea id="p3Input" placeholder="10 cards"></textarea>
+        <div id="p3Hand" class="hand"></div>
+      </section>
+
+      <section class="player-card player-bottom team-a" data-player="2">
+        <h2>Player 3</h2>
+        <p><span>Team A with Player 1</span><strong id="p2Count">0</strong></p>
+        <textarea id="p2Input" placeholder="10 cards"></textarea>
+        <div id="p2Hand" class="hand"></div>
+      </section>
+    </main>
+
+    <section class="bottom-panels">
+      <section class="kitty-section">
+        <h2>Kitty</h2>
+        <textarea id="kittyInput" placeholder="3 cards"></textarea>
+        <div id="kittyHand" class="hand"></div>
+      </section>
+
+      <section class="trick-section">
+        <h2>Current Trick</h2>
+        <div id="currentTrick" class="hand"></div>
+        <p id="trackerTrickResult" class="status-line"></p>
+      </section>
+    </section>
+
+    <section class="bottom-panels">
+      <section class="panel">
+        <h2>Still In Play</h2>
+        <p id="countSummary" class="status-line"></p>
+        <div id="suitCounter" class="count-grid"></div>
+      </section>
+
+      <section class="panel">
+        <h2>Advisor Read</h2>
+        <p id="trackerRecommendation" class="recommendation"></p>
+        <div id="trackerLegalCards" class="hand"></div>
+      </section>
+    </section>
+
+    <section class="bottom-panels">
+      <section class="panel wide-panel">
+        <h2>Move Insights</h2>
+        <ol id="moveInsightLog" class="log-list compact-log"></ol>
+      </section>
+    </section>
+  </section>
+
+  <section id="advisorMode" class="mode-panel">
+    <section class="advisor-grid">
+      <section class="panel">
+        <h2>Setup</h2>
+        <div class="field-row">
+          <label for="youSelect">You are</label>
+          <select id="youSelect">
+            <option value="0">Player 1</option>
+            <option value="1">Player 2</option>
+            <option value="2">Player 3</option>
+            <option value="3">Player 4</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label for="advisorDealerSelect">Dealer</label>
+          <select id="advisorDealerSelect">
+            <option value="0">Player 1</option>
+            <option value="1">Player 2</option>
+            <option value="2">Player 3</option>
+            <option value="3">Player 4</option>
+          </select>
+        </div>
+        <label for="yourHandInput">Your dealt hand</label>
+        <textarea id="yourHandInput" placeholder="10 cards, like AS 10H JD JK"></textarea>
+        <div class="controls compact-controls">
+          <button id="startAdvisorBtn" type="button">Start Hand</button>
+          <button id="resetAdvisorBtn" type="button">Reset</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <h2>Your Hand</h2>
+        <div id="advisorHand" class="hand"></div>
+        <div id="advisorCounts" class="count-grid"></div>
+      </section>
+    </section>
+
+    <section class="advisor-grid">
+      <section class="panel">
+        <h2>Bidding</h2>
+        <p id="bidStatus" class="status-line">Start a hand to begin bidding.</p>
+        <p id="bidRecommendation" class="recommendation"></p>
+        <div class="inline-form">
+          <button id="passBidBtn" type="button" disabled>Pass</button>
+          <label for="bidTricksSelect">Bid</label>
+          <select id="bidTricksSelect" disabled>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+          </select>
+          <select id="bidSuitSelect" disabled>
+            <option value="S">Spades</option>
+            <option value="C">Clubs</option>
+            <option value="D">Diamonds</option>
+            <option value="H">Hearts</option>
+          </select>
+          <button id="makeBidBtn" type="button" disabled>Record Bid</button>
+        </div>
+        <ol id="bidLog" class="log-list"></ol>
+      </section>
+
+      <section class="panel">
+        <h2>Kitty And Discard</h2>
+        <p id="kittyStatus" class="status-line">Only needed if you win the bid.</p>
+        <textarea id="advisorKittyInput" placeholder="Kitty cards, like 8S QD 4H"></textarea>
+        <div class="controls compact-controls">
+          <button id="loadKittyBtn" type="button" disabled>Load Kitty</button>
+          <button id="applyDiscardBtn" type="button" disabled>Use Recommended Discard</button>
+        </div>
+        <p id="discardRecommendation" class="recommendation"></p>
+      </section>
+    </section>
+
+    <section class="advisor-grid">
+      <section class="panel">
+        <h2>Play</h2>
+        <p id="playStatus" class="status-line">Finish bidding to start play.</p>
+        <p id="playRecommendation" class="recommendation"></p>
+        <div class="controls compact-controls">
+          <button id="importTrackerBtn" type="button">Recommend From Table</button>
+        </div>
+        <div class="inline-form">
+          <label for="playedCardInput">Played card</label>
+          <input id="playedCardInput" type="text" placeholder="AS" disabled />
+          <button id="recordPlayBtn" type="button" disabled>Record Play</button>
+        </div>
+        <div id="advisorTrick" class="hand"></div>
+        <p id="trickResult" class="status-line"></p>
+      </section>
+
+      <section class="panel">
+        <h2>Card Counter</h2>
+        <div class="score-row">
+          <span>Team A tricks: <strong id="teamAScore">0</strong></span>
+          <span>Team B tricks: <strong id="teamBScore">0</strong></span>
+        </div>
+        <div id="cardCounter" class="counter-list"></div>
+        <h3>Played Cards</h3>
+        <div id="playedCards" class="hand"></div>
+        <h3>Unseen Cards</h3>
+        <div id="unseenCards" class="mini-card-list"></div>
+      </section>
+    </section>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
