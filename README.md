@@ -42,10 +42,6 @@ JK
 
 The deck does not include any 2s, any 3s, 4S, or 4C.
 
-## How To Use The Website
-
-Open `index.html` in a browser, or host the repository with GitHub Pages.
-
 ### Table Mode
 
 1. Choose the dealer.
@@ -68,55 +64,3 @@ Open `index.html` in a browser, or host the repository with GitHub Pages.
 6. If you win the bid, enter the kitty and use the discard recommendation.
 7. Record each played card during the hand.
 8. Use the advisor recommendation when it is your turn to play.
-
-## GitHub Pages Setup
-
-1. Create a new GitHub repository.
-2. Upload these files to the root of the repository.
-3. Open the repository settings.
-4. Go to **Pages**.
-5. Set the source to **Deploy from a branch**.
-6. Select the main branch and the root folder.
-7. Save.
-
-Your site will publish as a static GitHub Pages website.
-
-## Local Development
-
-No build step is required for the website. You can open `index.html` directly or use a local static server.
-
-For example, with Python installed:
-
-```bash
-python -m http.server 8000
-```
-
-Then open:
-
-```text
-http://localhost:8000
-```
-
-## Optional Native Rule Engine
-
-The `native/` folder contains a C++ rule engine used for local rule testing and future native integration work. The hosted website does not require it.
-
-Compile it with:
-
-```bash
-g++ -std=c++17 native/five_hundred_engine.cpp -o native/five_hundred_engine
-./native/five_hundred_engine --test
-```
-
-On Windows PowerShell:
-
-```powershell
-g++ -std=c++17 native\five_hundred_engine.cpp -o native\five_hundred_engine.exe
-.\native\five_hundred_engine.exe --test
-```
-
-A passing test run ends with:
-
-```text
-Passed: 10, Failed: 0
-```
