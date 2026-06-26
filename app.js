@@ -368,22 +368,39 @@ function legalMoves(hand, trump, trick) {
 function estimateTricksForSuit(hand, suit) {
   let score = 0;
   const trumpCards = hand.filter(card => effectiveSuit(card, suit) === suit);
+  const trumpSuitSize = suit === "S" || suit === "C" ? 10 : 11;
+  const expectedTrumpInHand = hand.length * (trumpSuitSize / 43);
+  const trumpCountDelta = trumpCards.length - expectedTrumpInHand;
+  const sideSuitSupport = VALID_SUITS.filter(sideSuit => sideSuit !== suit)
+    .filter(sideSuit => hand.some(card => effectiveSuit(card, suit) === sideSuit)).length;
+  const hasTrumpAce = trumpCards.some(card => rankOf(card) === "A" && !isLeftBower(card, suit));
+  const hasRightBower = hand.some(card => isRightBower(card, suit));
+  const strongTrumpCount = trumpCards.filter(card => !isLeftBower(card, suit) && ["A", "K", "Q", "J", "10"].includes(rankOf(card))).length;
+  const hasStrongTrumpHonor = trumpCards.some(card => !isLeftBower(card, suit) && ["A", "K", "Q", "J", "10"].includes(rankOf(card)));
 
-  if (hand.includes("JK")) score += 2.2;
-  if (hand.some(card => isRightBower(card, suit))) score += 1.8;
-  if (hand.some(card => isLeftBower(card, suit))) score += 1.4;
-  if (trumpCards.some(card => rankOf(card) === "A" && !isLeftBower(card, suit))) score += 0.9;
-  score += Math.max(0, trumpCards.length - 3) * 0.45;
+  if (hand.includes("JK")) score += 1.25;
+  if (hand.some(card => isRightBower(card, suit))) score += 1;
+  if (hand.some(card => isLeftBower(card, suit))) score += 0.9;
+  if (trumpCards.some(card => rankOf(card) === "A" && !isLeftBower(card, suit))) score += 0.75;
+  score += Math.max(0, trumpCards.length - 4) * 0.12;
+  if (trumpCountDelta > 0) score += trumpCountDelta * 0.16;
+  if (trumpCountDelta < 0) score += trumpCountDelta * 0.12;
 
   for (const sideSuit of VALID_SUITS) {
     if (sideSuit === suit) continue;
     const cards = hand.filter(card => effectiveSuit(card, suit) === sideSuit);
-    if (cards.some(card => rankOf(card) === "A")) score += 0.65;
-    if (cards.length === 0) score += 0.25;
-    if (cards.length === 1) score += 0.15;
+    if (cards.some(card => rankOf(card) === "A")) score += 0.4;
+    if (cards.length === 0) score += 0.1;
+    if (cards.length === 1) score += 0.05;
   }
 
-  return Math.min(10, Math.max(0, 4 + score));
+  score -= Math.max(0, 3 - sideSuitSupport) * 0.25;
+  if (!hasTrumpAce && !hasRightBower && trumpCards.length >= 4 && strongTrumpCount <= 2) score -= 1.2;
+  if (!hasStrongTrumpHonor && trumpCards.length >= 4 && sideSuitSupport >= 3) score -= 0.4;
+  if (trumpCards.length <= 2) score -= 0.3;
+
+  const raw = 3.8 + score;
+  return Math.min(8.6, Math.max(3.2, Math.floor((raw + 0.0001) * 2) / 2));
 }
 
 function recommendBid(hand, currentHighBid, player = 0) {
@@ -393,12 +410,10 @@ function recommendBid(hand, currentHighBid, player = 0) {
   })).sort((a, b) => b.estimate - a.estimate);
 
   const best = suitScores[0];
-  let tricks = Math.floor(best.estimate);
-  if (best.estimate >= 6.75) tricks = Math.ceil(best.estimate);
-  tricks = Math.max(6, Math.min(10, tricks));
+  const tricks = Math.max(6, Math.min(10, Math.round(best.estimate)));
+  const shouldBid = best.estimate >= 6 && compareBids({ player, tricks, suit: best.suit }, currentHighBid) > 0;
 
-  const candidate = { player, tricks, suit: best.suit };
-  if (best.estimate < 5.9 || compareBids(candidate, currentHighBid) <= 0) {
+  if (!shouldBid) {
     return {
       action: "pass",
       text: `Recommendation: pass. Best fit is ${suitName(best.suit)} at about ${best.estimate.toFixed(1)} tricks.`,
@@ -407,7 +422,7 @@ function recommendBid(hand, currentHighBid, player = 0) {
 
   return {
     action: "bid",
-    bid: candidate,
+    bid: { player, tricks, suit: best.suit },
     text: `Recommendation: bid ${tricks} ${suitName(best.suit)}. Estimated strength: ${best.estimate.toFixed(1)} tricks.`,
   };
 }
