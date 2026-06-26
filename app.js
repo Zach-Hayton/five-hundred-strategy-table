@@ -376,7 +376,6 @@ function estimateTricksForSuit(hand, suit) {
   const hasTrumpAce = trumpCards.some(card => rankOf(card) === "A" && !isLeftBower(card, suit));
   const hasRightBower = hand.some(card => isRightBower(card, suit));
   const strongTrumpCount = trumpCards.filter(card => !isLeftBower(card, suit) && ["A", "K", "Q", "J", "10"].includes(rankOf(card))).length;
-  const hasStrongTrumpHonor = trumpCards.some(card => !isLeftBower(card, suit) && ["A", "K", "Q", "J", "10"].includes(rankOf(card)));
 
   if (hand.includes("JK")) score += 1.25;
   if (hand.some(card => isRightBower(card, suit))) score += 1;
@@ -395,12 +394,11 @@ function estimateTricksForSuit(hand, suit) {
   }
 
   score -= Math.max(0, 3 - sideSuitSupport) * 0.25;
-  if (!hasTrumpAce && !hasRightBower && trumpCards.length >= 4 && strongTrumpCount <= 2) score -= 1.2;
-  if (!hasStrongTrumpHonor && trumpCards.length >= 4 && sideSuitSupport >= 3) score -= 0.4;
+  if (!hasTrumpAce && !hasRightBower && trumpCards.length >= 4 && strongTrumpCount <= 2) score -= 0.8;
   if (trumpCards.length <= 2) score -= 0.3;
 
   const raw = 3.8 + score;
-  return Math.min(8.6, Math.max(3.2, Math.floor((raw + 0.0001) * 2) / 2));
+  return Math.min(8.6, Math.max(3.2, Math.round(raw * 2) / 2));
 }
 
 function recommendBid(hand, currentHighBid, player = 0) {
